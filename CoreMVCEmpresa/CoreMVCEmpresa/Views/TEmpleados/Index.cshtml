@@ -1,0 +1,219 @@
+﻿@model IEnumerable<CoreMVCEmpresa.Models.Entities.TEmpleados>
+
+
+@{
+	ViewData["Title"] = "Index";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+	<a asp-action="Create">Create New</a> |
+	<a class="btn btn-danger register-button">Registrar con AJAX</a>
+</p>
+<table class="table">
+	<thead>
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.Nombre)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Apellidos)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Activo)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.IdPuestoNavigation)
+			</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>
+					@Html.DisplayFor(modelItem => item.Nombre)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Apellidos)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Activo)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.IdPuestoNavigation.NombrePuesto)
+				</td>
+				<td>
+					<a asp-action="Edit" asp-route-id="@item.IdNumEmp">Edit</a> |
+					<a asp-action="Details" asp-route-id="@item.IdNumEmp">Details</a> |
+					<a asp-action="Delete" asp-route-id="@item.IdNumEmp">Delete</a> |
+					<a class="btn btn-danger delete-button" data-id="@item.IdNumEmp">Borrar con AJAX</a> |
+					<a class="btn btn-danger edit-button">Editar con AJAX</a>
+
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+@* ***************************ventana modal para GUARDAR****************************** *@
+<div class="modal fade" id="register-modal" tabindex="-1" role="dialog" aria-labelledby="register-modal-label" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="register-modal-label">Registrar Empleado</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<!-- Aquí van los campos de TEmpleados -->
+				<form id="register-form">
+					<div class="form-group">
+						<label for="nombre">Nombre</label>
+						<input type="text" class="form-control" id="nombre" name="nombre">
+					</div>
+					<div class="form-group">
+						<label for="apellidos">Apellidos</label>
+						<input type="text" class="form-control" id="apellidos" name="apellidos">
+					</div>
+					<div class="form-group">
+						<label for="idPuesto">Puesto</label>
+						<select class="form-control" id="idPuesto" name="idPuesto">
+							@foreach (var item in ViewBag.IdPuesto)
+							{
+								<option value="@item.Value">@item.Text</option>
+							}
+						</select>
+					</div>
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+				<button type="button" class="btn btn-primary" id="save-Empleado">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+@* ***************************ventana modal para EDITAR****************************** *@
+
+<div class="modal fade" id="edit-modal" tabindex="-1" role="dialog" aria-labelledby="edit-modal-label" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="edit-modal-label">Registrar Empleado</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<!-- Aquí van los campos de TEmpleados -->
+				<form id="edit-form">
+					<div class="form-group">
+						<label for="nombre">Nombre</label>
+						<input type="text" class="form-control" id="nombre" name="nombre">
+					</div>
+					<div class="form-group">
+						<label for="apellidos">Apellidos</label>
+						<input type="text" class="form-control" id="apellidos" name="apellidos">
+					</div>
+					<div class="form-group">
+						<label for="activo">Activo</label>
+						<select class="form-control" id="activo" name="activo">
+							<option value="true">Sí</option>
+							<option value="false">No</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="idPuesto">Puesto</label>
+						<select class="form-control" id="idPuesto" name="idPuesto">
+							@foreach (var item in ViewBag.IdPuesto)
+							{
+								<option value="@item.Value">@item.Text</option>
+							}
+						</select>
+					</div>
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+				<button type="button" class="btn btn-primary" id="savedit-Empleado">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		$(document).on('click', '.delete-button', function () {
+			var id = $(this).data('id');
+			$.ajax({
+				url: '@Url.Action("DeleteEmpleado", "TEmpleados")',
+				data: { id: id },
+				type: 'POST',
+				success: function () {
+					alert('El empleado ha sido eliminado.');
+					location.reload();
+				},
+				error: function () {
+					alert('Se produjo un error al eliminar el empleado.');
+				}
+			});
+		});
+
+		$(document).ready(function () {
+			$('.register-button').click(function () {
+				$('#register-modal').modal('show');
+			});
+
+			//  =======================Guardar==========================
+			$('#save-Empleado').click(function () {
+				// Obtener los valores de los campos de formulario
+				var nombre = $('#nombre').val();
+				var apellidos = $('#apellidos').val();
+				var idPuesto = $('#idPuesto').val();
+
+				//solicitud AJAX
+				$.ajax({
+					url: '@Url.Action("InsertEmpleado", "TEmpleados")',
+					data: { nombre: nombre, apellidos: apellidos, idPuesto: idPuesto },
+					type: 'POST',
+					success: function () {
+						alert('El empleado ha sido registrado.');
+						$('#register-modal').modal('hide');
+						location.reload();
+					},
+					error: function () {
+						alert('Se produjo un error al registrar el empleado.');
+					}
+				});
+			});
+		});
+		//==========================EDITAR===========================================
+		$(document).ready(function() {
+			$(".edit-button").click(function() {
+				var idNumEmp = $(this).closest("tr").find("td:eq(4) a:eq(0)").attr("asp-route-id");
+				var nombre = $(this).closest("tr").find("td:eq(0)").text().trim();
+				var apellidos = $(this).closest("tr").find("td:eq(1)").text().trim();
+				var activo = $(this).closest("tr").find("td:eq(2)").text().trim();
+				var idPuesto = $(this).closest("tr").find("td:eq(3)").text().trim();
+				
+				$("#edit-modal #nombre").val(nombre);
+				$("#edit-modal #apellidos").val(apellidos);
+				$("#edit-modal #activo").val(activo);
+				$("#edit-modal #idPuesto").val(idPuesto);
+				
+				$("#edit-modal #savedit-Empleado").attr("data-id", idNumEmp);
+				
+				$("#edit-modal").modal("show");
+			});
+		});
+
+
+
+	</script>
+}
